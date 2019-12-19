@@ -1,17 +1,12 @@
-/******************************************************************************
-
-                            Online Java Compiler.
-                Code, Compile, Run and Debug java program online.
-Write your code in this editor and press "Run" button to execute it.
-
-*******************************************************************************/
-import java.io.*;
+//Ryan Heenan
 import java.util.*;
 public class Main
 {
-	public static void main(String[] args) {
-		Map<Character, List<Character>> keyPadMap = new HashMap<>();
-		keyPadMap.put('A', Arrays.asList('L', 'H'));
+	public static void main(String[] args) 
+	{
+	//Initialize maps: keys are symbol on keypad, Array is all possible next moves (knight constraint)
+	Map<Character, List<Character>> keyPadMap = new HashMap<>();
+	keyPadMap.put('A', Arrays.asList('L', 'H'));
         keyPadMap.put('B', Arrays.asList('K', 'M', 'I'));
         keyPadMap.put('C', Arrays.asList('F', 'N', 'L', 'J'));
         keyPadMap.put('D', Arrays.asList('M', 'O', 'G'));
@@ -29,59 +24,89 @@ public class Main
         keyPadMap.put('1', Arrays.asList('F', 'H', 'N'));
         keyPadMap.put('2', Arrays.asList('K', 'G', 'I', 'O'));
         keyPadMap.put('3', Arrays.asList('L', 'H', 'J'));
+     
+    //Array of all possible start values
+    char start[] = new char[]{'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','1','2','3'};
 
-    char start = 'A';
+    //Length of sequence
+    int length = 10;
 
-    int length = 4;
-    int count = getCountCombi(keyPadMap, length-1, start);
-    System.out.println("Total combi: " + count);
-
+    //Find final result
+    int total = 0;
+    for(int i = 0; i < start.length; i++)
+        {
+        total += knightSequences(keyPadMap, length-1, start[i]);
+        }
+    System.out.println("Total sequence number = " + total);
   }
-  
- public static int getCountCombi(Map<Character, List<Character>> map, int length, Character key) {
 
+//Function to begin Calculations
+public static int knightSequences(Map<Character, List<Character>> map, int length, Character key)
+    {
     int count = 0;
     int vowels = 0;
-    if ( key == 'A' || key == 'I' || key == 'E' || key == 'U')
+    //Find out if sequence begins with a vowel
+    if(key == 'A' || key == 'E' || key == 'I' || key == 'O')
     {
         vowels = 1;
     }
-    count = findCombinations(key, map, length, vowels);
-
+    //Call Recursive functon
+    count = knightSequences(key, map, length, vowels);
     return count;
   }
 
- public static int findCombinations(Character val, Map<Character, List<Character>> map, int length, int vowels) {
-
-    if (length == 0) {
+//Recursive Function
+ public static int knightSequences(Character val, Map<Character, List<Character>> map, int length, int vowels) {
+    //Sequence with length of 0
+    if (length == 0) 
+    {
       return 0;
     }
-
-    if (length == 1){
-        return map.get(val).size();
+    
+    //End sequence if over two vowels are in it
+    if (vowels > 2)
+    {
+        return 0;
     }
     
+    //Calculate end of sequence and whether or not it is valid
+    int count = 0;
+    if (length == 1)
+    {
+        //If vowels are not near max of 2, return all possible sequences
+        if (vowels != 2)
+        {
+            return map.get(val).size();
+        }
+        else
+        {
+            //This checks special case where 3rd vowel is last character in sequence and does not count these sequences
+            for(int i = 0; i < map.get(val).size(); i++)
+            {
+                if(map.get(val).get(i) != 'A' && map.get(val).get(i) != 'E' && map.get(val).get(i) != 'I' && map.get(val).get(i) != 'O')
+                {
+                    count += 1;
+                }
+            }
+        return count;
+        }
+    }
     int sum = 0;
     
-    //if (map.containsKey(val)) {
-      for (Character next : map.get(val)) {
-        //sum += map.get(next).size();
-        if (next == 'A' || next == 'I' || next == 'E' || next == 'U')
+    //Loop through Next possible characters in sequence
+    for (Character next : map.get(val)) 
         {
-            vowels += 1;
+            //Check for vowel
+            if(next == 'A' || next == 'E' || next == 'I' || next == 'O')
+            {
+                sum += knightSequences(next, map, length - 1, vowels + 1);
+            }
+            else
+            {
+                sum += knightSequences(next, map, length - 1, vowels); 
+            }
         }
-        System.out.println(vowels);
-        if (next != 'A' && next != 'I' && next != 'E' && next == 'U' && vowels >=2 )
-        {
-            sum += findCombinations(next, map, length - 1, vowels);
-        }
-        else 
-        {
-            //sum += findCombinations(next, map, length - 1, vowels);
-        }
-      }
-    //}
+    //Return final answer
     return sum;
   }
-    
 }
